@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- TGL design tokens ---------- */
+:root {
+  --tgl-forest: #073b32;
+  --tgl-emerald: #20c982;
+  --tgl-charcoal: #15191e;
+  --tgl-paper: #fdfcf9;
+  --tgl-mist: #f4f4f1;
+  --tgl-line: #e7e7e2;
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur-normal: 250ms;
+  --dur-emphasis: 400ms;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-paper text-charcoal font-sans;
+  }
+  ::selection {
+    background: rgba(32, 201, 130, 0.24);
+  }
+  /* Visible, consistent keyboard focus */
+  :focus-visible {
+    outline: 2px solid var(--tgl-emerald);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Calm autofill */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset;
+    -webkit-text-fill-color: var(--tgl-charcoal);
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+@layer components {
+  /* Skeleton shimmer — subtle, never aggressive */
+  .skeleton {
+    @apply relative overflow-hidden bg-mist rounded-lg;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.55),
+      transparent
+    );
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+}
+
+/* ---------- Reduced motion: mandatory ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .skeleton::after {
+    animation: none;
+  }
+}
