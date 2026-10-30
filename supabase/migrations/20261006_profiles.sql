@@ -81,7 +81,7 @@ create policy "Users can read own profile"
 drop policy if exists "Users can insert own profile" on public.profiles;
 create policy "Users can insert own profile"
   on public.profiles for insert
-  with check (auth.uid() = id) and role = 'student';
+  with check (auth.uid() = id and role = 'student');
 
 drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
