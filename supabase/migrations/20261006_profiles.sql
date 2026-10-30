@@ -66,8 +66,8 @@ create trigger on_auth_user_created
 -- ------------------------------------------------------------------
 -- Row Level Security.
 -- - Users can read and update ONLY their own profile.
--- - Users can insert ONLY their own profile row (fallback path; the
---   trigger handles the normal case via security definer).
+-- - Users can insert ONLY their own profile row, and ONLY as 'student'
+--   (fallback path; the trigger handles the normal case via security definer).
 -- - Role changes are NOT allowed from the client: the update policy
 --   excludes the role column via a trigger guard below.
 -- ------------------------------------------------------------------
@@ -81,7 +81,7 @@ create policy "Users can read own profile"
 drop policy if exists "Users can insert own profile" on public.profiles;
 create policy "Users can insert own profile"
   on public.profiles for insert
-  with check (auth.uid() = id);
+  with check (auth.uid() = id) and role = 'student';
 
 drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
