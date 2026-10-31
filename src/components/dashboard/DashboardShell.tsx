@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -97,7 +97,51 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
+  const wasOpenRef = useRef(false);
   const initial = name.charAt(0).toUpperCase() || "S";
+
+  /* Mobile drawer keyboard access: on open, focus moves to the drawer's
+     first button (Close menu); on close, focus returns to the menu
+     button. Focus is never stolen on first mount (open starts false). */
+  useEffect(() => {
+    if (open) {
+      wasOpenRef.current = true;
+      drawerRef.current?.querySelector<HTMLElement>("button")?.focus();
+    } else if (wasOpenRef.current) {
+      wasOpenRef.current = false;
+      openButtonRef.current?.focus();
+    }
+  }, [open ]);
+
+  /* While the drawer is open: Escape closes it, and Tab cycles within
+     it instead of wandering into the obscured page behind it. */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab" || !drawerRef.current) return;
+      const items = drawerRef.current.querySelectorAll<HTMLElement>(
+        "a[href], button:not([disabled])",
+      );
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open ]);
 
   return (
     <div className="flex min-h-dvh bg-paper">
@@ -129,6 +173,8 @@ export function DashboardShell({
               onClick={() => setOpen(false)} aria-hidden
             />
             <motion.aside
+              ref={drawerRef}
+              aria-label="Dashboard menu"
               initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
               transition={{ duration: 0.28, ease: EASE }}
               className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-white px-4 py-6 lg:hidden"
@@ -152,7 +198,7 @@ export function DashboardShell({
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b border-line bg-white/80 px-5 backdrop-blur-sm sm:px-8">
-          <button type="button" onClick={() => setOpen(true)} aria-label="Open menu"
+          <button type="button" ref={openButtonRef} onClick={() => setOpen(true)} aria-label="Open menu"
             className="rounded-lg p-2 text-charcoal-500 hover:bg-mist lg:hidden">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
               <path d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
