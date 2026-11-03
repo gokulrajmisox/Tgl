@@ -8,10 +8,21 @@ verification, OAuth callback, role-based access) plus the TGL premium
 motion/interaction system — all in the TGL visual identity
 (forest `#073B32`, emerald `#20C982`, charcoal `#15191E`, warm white).
 
+## Stack
+
+Versions are the ranges in `package.json` on `main` (verified against the
+committed manifest, not assumed):
+
+- Next.js `^14.2.5` (App Router) + React `^18.3.1` + TypeScript `^5.5.0`
+- Supabase Auth via `@supabase/ssr` `^0.5.2` / `@supabase/supabase-js` `^2.45.0`
+- `framer-motion` `^11.11.0` · `zod` `^3.23.8` · Tailwind CSS `^3.4.10`
+- `package-lock.json` (`lockfileVersion: 3`) is committed, so `npm ci`
+  reproduces the same install.
+
 ## Quickstart
 
 ```bash
-npm install
+npm ci   # reproducible install; package-lock.json is committed
 cp .env.example .env.local   # then fill in your Supabase credentials
 npm run dev                  # http://localhost:3000
 ```
